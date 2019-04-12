@@ -1,52 +1,63 @@
+import os, re
 
-def delitel(n,m):   # Находим общий делитель
-    if n<m:
-        max=m
-        min=n
-    else:
-        max=n
-        min=m
-    for i in range(2,max):
-        if (max%i)==0 and (min%i)==0:
-            return(i)
-            break
-    return(0)
+class worker_name:
+    def __init__(self,name,surname):
+        self.name=name
+        self.surname=surname
+        self.fullname=surname+' '+name
 
-str1=input("Введите простые дроби для склыдывания, в формате. 5/6 + 4/7: ")
+class works_hours(worker_name):
+    def __init__(self,name,surname,hours):
+        super().__init__(name, surname)
+        self.hours=int(hours)
+        self.works_d={self.fullname:self.hours}
 
-n1=int(str1[:str1.find('/')])
-n2=int(str1[str1.find('/')+1:str1.find('+')])
-str1=str1[str1.find('+')+1:]
-n3=int(str1[:str1.find('/')])
-n4=int(str1[str1.find('/')+1:])
-
-fac1=n4     # Множитель первой дроби
-fac2=n2     # Множитель второй дроби
-n1=n1*fac1
-n2=n2*fac1
-n3=n3*fac2
-deno=n1+n3  # Знаменатель
-numer=n2    # Числитель
-integ=deno//numer
-deno=deno%numer
-
-num_del=delitel(deno,numer)
-
-if num_del!=0:
-    deno=int(deno/num_del)
-    numer=int(numer/num_del)
-
-if deno==0:
-    output=integ
-else:
-    output=str(integ)+' '+str(deno)+'/'+str(numer)
-
-print(output)
+class Workers(worker_name):
+    def __init__(self, name, surname, money, special, hours):
+        super().__init__(name,surname)
+        self.money=int(money)
+        self.hours=int(hours)
+        self.MPH=self.money/self.hours
 
 
 
+path=os.path.join('data','workers.txt')
+work=open(path,'r',encoding='UTF-8')
 
-# Ввод: 5/6 + 4/7 (всё выражение вводится целиком в виде строки)
-# Вывод: 1 17/42  (результат обязательно упростить и выделить целую часть)
-# Ввод: -2/3 - -2
-# Вывод: 1 1/3
+path=os.path.join('data','hours_of.txt')
+hours=open(path,'r',encoding='UTF-8')
+
+list_work=work.readlines()
+list_hours=hours.readlines()
+lst_out=[]
+
+for i in range(1,len(list_hours)):
+
+    actl_hours=list_hours[i].rstrip('\n')
+    work1=works_hours(re.findall(r"\s*(\S+)\s*",actl_hours)[0],re.findall(r"\s*(\S+)\s*",actl_hours)[1],re.findall(r"\s*(\S+)\s*",actl_hours)[2],)
+    lst_out.append(work1)
+
+
+for i in range(1,len(list_work)):
+
+    actl_hours=list_work[i].rstrip('\n')
+    work1=Workers(re.findall(r"\s*(\S+)\s*",actl_hours)[0],re.findall(r"\s*(\S+)\s*",actl_hours)[1],re.findall(r"\s*(\S+)\s*",actl_hours)[2],
+                      re.findall(r"\s*(\S+)\s*",actl_hours)[3],re.findall(r"\s*(\S+)\s*",actl_hours)[4])
+
+    for obj in lst_out:
+        if obj.fullname==work1.fullname:
+            if work1.hours>=obj.hours:
+                pay=((work1.MPH)*obj.hours)
+                print('{:.<20}{:.>20.2f}'.format(work1.fullname,pay))
+            else:
+                pay=work1.money+(obj.hours-work1.hours)*(work1.MPH)
+                print('{:.<20}{:.>20.2f}'.format(work1.fullname,pay))
+
+
+
+
+
+work.close()
+
+hours.close()
+input()
